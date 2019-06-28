@@ -8,6 +8,9 @@ namespace Magento\Theme\Model\Design\Backend;
 use Magento\Config\Model\Config\Backend\Serialized\ArraySerialized;
 use Magento\Framework\Serialize\Serializer\Json;
 
+/**
+ * Validate Eav Model before save.
+ */
 class Exceptions extends ArraySerialized
 {
     /**
@@ -100,12 +103,13 @@ class Exceptions extends ArraySerialized
      *
      * @param string $search
      * @return string
+     *
      * @throws \Magento\Framework\Exception\LocalizedException on invalid regular expression
      */
     protected function _composeRegexp($search)
     {
         // If valid regexp entered - do nothing
-        if (@preg_match($search, '') !== false) {
+        if (preg_match($search, '') !== false) {
             return $search;
         }
 
@@ -163,6 +167,8 @@ class Exceptions extends ArraySerialized
     }
 
     /**
+     * Get Value from data array.
+     *
      * @return array
      */
     public function getValue()

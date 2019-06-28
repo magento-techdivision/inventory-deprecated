@@ -217,7 +217,9 @@ class Storage
         $filePath = $this->mediaWriteDirectory->getRelativePath($path . '/' . $file);
         $thumbnailPath = $this->_helper->getThumbnailDirectory($filePath) . '/' . $file;
 
-        if (0 === strpos($filePath, (string) $path) && 0 === strpos($filePath, (string) $this->_helper->getStorageRoot())) {
+        if (0 === strpos($filePath, (string) $path) &&
+            0 === strpos($filePath, (string) $this->_helper->getStorageRoot())
+        ) {
             $this->mediaWriteDirectory->delete($filePath);
             $this->mediaWriteDirectory->delete($thumbnailPath);
         }

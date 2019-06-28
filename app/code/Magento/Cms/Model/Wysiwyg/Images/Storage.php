@@ -10,6 +10,7 @@ namespace Magento\Cms\Model\Wysiwyg\Images;
 
 use Magento\Cms\Helper\Wysiwyg\Images;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ObjectManager;
 
 /**
  * Wysiwyg Images model.
@@ -137,6 +138,15 @@ class Storage extends \Magento\Framework\DataObject
     protected $_uploaderFactory;
 
     /**
+     * @var \Psr\Log\LoggerInterface|null
+     */
+    private $logger;
+    /**
+     * @var \Magento\Framework\Filesystem\DriverInterface
+     */
+    private $file;
+
+    /**
      * Construct
      *
      * @param \Magento\Backend\Model\Session $session
@@ -151,11 +161,14 @@ class Storage extends \Magento\Framework\DataObject
      * @param \Magento\MediaStorage\Model\File\Storage\DatabaseFactory $storageDatabaseFactory
      * @param \Magento\MediaStorage\Model\File\Storage\Directory\DatabaseFactory $directoryDatabaseFactory
      * @param \Magento\MediaStorage\Model\File\UploaderFactory $uploaderFactory
+     * @param \Psr\Log\LoggerInterface|null $logger
      * @param array $resizeParameters
      * @param array $extensions
      * @param array $dirs
      * @param array $data
+     * @param \Magento\Framework\Filesystem\DriverInterface $file
      *
+     * @throws \Magento\Framework\Exception\FileSystemException
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -171,10 +184,12 @@ class Storage extends \Magento\Framework\DataObject
         \Magento\MediaStorage\Model\File\Storage\DatabaseFactory $storageDatabaseFactory,
         \Magento\MediaStorage\Model\File\Storage\Directory\DatabaseFactory $directoryDatabaseFactory,
         \Magento\MediaStorage\Model\File\UploaderFactory $uploaderFactory,
+        \Psr\Log\LoggerInterface $logger = null,
         array $resizeParameters = [],
         array $extensions = [],
         array $dirs = [],
-        array $data = []
+        array $data = [],
+        \Magento\Framework\Filesystem\DriverInterface $file = null
     ) {
         $this->_session = $session;
         $this->_backendUrl = $backendUrl;
@@ -188,9 +203,11 @@ class Storage extends \Magento\Framework\DataObject
         $this->_storageDatabaseFactory = $storageDatabaseFactory;
         $this->_directoryDatabaseFactory = $directoryDatabaseFactory;
         $this->_uploaderFactory = $uploaderFactory;
+        $this->logger = $logger ?: ObjectManager::getInstance()->get(\Psr\Log\LoggerInterface::class);
         $this->_resizeParameters = $resizeParameters;
         $this->_extensions = $extensions;
         $this->_dirs = $dirs;
+        $this->file = $file ?: ObjectManager::getInstance()->get(\Magento\Framework\Filesystem\DriverInterface::class);
         parent::__construct($data);
     }
 
@@ -288,9 +305,12 @@ class Storage extends \Magento\Framework\DataObject
     /**
      * Return files
      *
-     * @param string $path Parent directory path
-     * @param string $type Type of storage, e.g. image, media etc.
-     * @return \Magento\Framework\Data\Collection\Filesystem
+     * @param   string $path Parent directory path
+     * @param   string $type Type of storage, e.g. image, media etc.
+     * @return  \Magento\Framework\Data\Collection\Filesystem
+     *
+     * @throws  \Magento\Framework\Exception\FileSystemException
+     * @throws  \Magento\Framework\Exception\LocalizedException
      */
     public function getFilesCollection($path, $type = null)
     {
@@ -328,7 +348,8 @@ class Storage extends \Magento\Framework\DataObject
             $item->setName($item->getBasename());
             $item->setShortName($this->_cmsWysiwygImages->getShortFilename($item->getBasename()));
             $item->setUrl($this->_cmsWysiwygImages->getCurrentUrl() . $item->getBasename());
-            $item->setSize(filesize($item->getFilename()));
+            $itemStats = $this->file->stat($item->getFilename());
+            $item->setSize($itemStats['size']);
             $item->setMimeType(\mime_content_type($item->getFilename()));
 
             if ($this->isImage($item->getBasename())) {
@@ -338,11 +359,15 @@ class Storage extends \Magento\Framework\DataObject
                     $thumbUrl = $this->_backendUrl->getUrl('cms/*/thumbnail', ['file' => $item->getId()]);
                 }
 
-                $size = @getimagesize($item->getFilename());
+                try {
+                    $size = getimagesize($item->getFilename());
 
-                if (is_array($size)) {
-                    $item->setWidth($size[0]);
-                    $item->setHeight($size[1]);
+                    if (is_array($size)) {
+                        $item->setWidth($size[0]);
+                        $item->setHeight($size[1]);
+                    }
+                } catch (\Error $e) {
+                    $this->logger->notice(sprintf("GetImageSize caused error: %s", $e->getMessage()));
                 }
             } else {
                 $thumbUrl = $this->_assetRepo->getUrl(self::THUMB_PLACEHOLDER_PATH_SUFFIX);
@@ -624,7 +649,7 @@ class Storage extends \Magento\Framework\DataObject
         $thumbnailDir = $this->getThumbnailRoot();
 
         if ($filePath && strpos($filePath, (string) $mediaRootDir) === 0) {
-            $thumbnailDir .= dirname(substr($filePath, strlen($mediaRootDir)));
+            $thumbnailDir .= $this->file->getParentDirectory(substr($filePath, strlen($mediaRootDir)));
         }
 
         return $thumbnailDir;

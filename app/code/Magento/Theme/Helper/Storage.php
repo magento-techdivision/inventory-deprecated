@@ -12,6 +12,8 @@ namespace Magento\Theme\Helper;
 use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
+ * Handles the storage of media files like images and fonts.
+ *
  * @api
  * @since 100.0.2
  * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
@@ -260,7 +262,9 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
     public function getThumbnailPath($imageName)
     {
         $imagePath = $this->getCurrentPath() . '/' . $imageName;
-        if (!$this->mediaDirectoryWrite->isExist($imagePath) || 0 !== strpos($imagePath, (string) $this->getStorageRoot())) {
+        if (!$this->mediaDirectoryWrite->isExist($imagePath) ||
+            0 !== strpos($imagePath, (string) $this->getStorageRoot())
+        ) {
             throw new \InvalidArgumentException('The image not found.');
         }
         return $this->getThumbnailDirectory($imagePath) . '/' . pathinfo($imageName, PATHINFO_BASENAME);

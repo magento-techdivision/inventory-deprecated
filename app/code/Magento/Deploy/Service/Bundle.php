@@ -83,6 +83,8 @@ class Bundle
      * @param BundleInterfaceFactory $bundleFactory
      * @param BundleConfig $bundleConfig
      * @param Files $files
+     *
+     * @throws \Magento\Framework\Exception\FileSystemException
      */
     public function __construct(
         Filesystem $filesystem,
@@ -103,14 +105,19 @@ class Bundle
      * @param string $theme
      * @param string $locale
      * @return void
+     *
+     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function deploy($area, $theme, $locale)
     {
-        $bundle = $this->bundleFactory->create([
+        $bundle = $this->bundleFactory->create(
+            [
             'area' => $area,
             'theme' => $theme,
             'locale' => $locale
-        ]);
+            ]
+        );
 
         // delete all previously created bundle files
         $bundle->clear();
