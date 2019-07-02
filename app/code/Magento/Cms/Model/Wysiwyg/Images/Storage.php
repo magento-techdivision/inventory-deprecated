@@ -147,6 +147,11 @@ class Storage extends \Magento\Framework\DataObject
     private $file;
 
     /**
+     * @var \Magento\Framework\Filesystem\Io\File|null
+     */
+    private $ioFile;
+
+    /**
      * Construct
      *
      * @param \Magento\Backend\Model\Session $session
@@ -167,6 +172,8 @@ class Storage extends \Magento\Framework\DataObject
      * @param array $dirs
      * @param array $data
      * @param \Magento\Framework\Filesystem\DriverInterface $file
+     *
+     * @param \Magento\Framework\Filesystem\Io\File|null $ioFile
      *
      * @throws \Magento\Framework\Exception\FileSystemException
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -189,7 +196,8 @@ class Storage extends \Magento\Framework\DataObject
         array $extensions = [],
         array $dirs = [],
         array $data = [],
-        \Magento\Framework\Filesystem\DriverInterface $file = null
+        \Magento\Framework\Filesystem\DriverInterface $file = null,
+        \Magento\Framework\Filesystem\Io\File $ioFile = null
     ) {
         $this->_session = $session;
         $this->_backendUrl = $backendUrl;
@@ -208,6 +216,9 @@ class Storage extends \Magento\Framework\DataObject
         $this->_extensions = $extensions;
         $this->_dirs = $dirs;
         $this->file = $file ?: ObjectManager::getInstance()->get(\Magento\Framework\Filesystem\DriverInterface::class);
+        $this->ioFile = $ioFile ?: ObjectManager::getInstance()->get(
+            \Magento\Framework\Filesystem\Io\File::class
+        );
         parent::__construct($data);
     }
 
@@ -614,7 +625,7 @@ class Storage extends \Magento\Framework\DataObject
         $image->open($source);
         $image->keepAspectRatio($keepRatio);
         $image->resize($this->_resizeParameters['width'], $this->_resizeParameters['height']);
-        $dest = $targetDir . '/' . pathinfo($source, PATHINFO_BASENAME);
+        $dest = $targetDir . '/' . $this->ioFile->getPathInfo($source)[PATHINFO_BASENAME];
         $image->save($dest);
         if ($this->_directory->isFile($this->_directory->getRelativePath($dest))) {
             return $dest;
@@ -699,7 +710,7 @@ class Storage extends \Magento\Framework\DataObject
         if (!$this->hasData('_image_extensions')) {
             $this->setData('_image_extensions', $this->getAllowedExtensions('image'));
         }
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $ext = strtolower($this->ioFile->getPathInfo($filename)[PATHINFO_EXTENSION]);
         return in_array($ext, $this->_getData('_image_extensions'));
     }
 

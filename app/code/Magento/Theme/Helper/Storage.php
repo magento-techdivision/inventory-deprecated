@@ -10,6 +10,7 @@
 namespace Magento\Theme\Helper;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ObjectManager;
 
 /**
  * Handles the storage of media files like images and fonts.
@@ -92,16 +93,26 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
     protected $mediaDirectoryWrite;
 
     /**
+     * @var \Magento\Framework\Filesystem\Io\File|null
+     */
+    private $file;
+
+    /**
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Framework\Filesystem $filesystem
      * @param \Magento\Backend\Model\Session $session
      * @param \Magento\Framework\View\Design\Theme\FlyweightFactory $themeFactory
+     * @param \Magento\Framework\Filesystem\Io\File|null $file
+     *
+     * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws \Magento\Framework\Exception\ValidatorException
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\Filesystem $filesystem,
         \Magento\Backend\Model\Session $session,
-        \Magento\Framework\View\Design\Theme\FlyweightFactory $themeFactory
+        \Magento\Framework\View\Design\Theme\FlyweightFactory $themeFactory,
+        \Magento\Framework\Filesystem\Io\File $file = null
     ) {
         parent::__construct($context);
         $this->filesystem = $filesystem;
@@ -109,6 +120,9 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_themeFactory = $themeFactory;
         $this->mediaDirectoryWrite = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $this->mediaDirectoryWrite->create($this->mediaDirectoryWrite->getRelativePath($this->getStorageRoot()));
+        $this->file = $file ?: ObjectManager::getInstance()->get(
+            \Magento\Framework\Filesystem\Io\File::class
+        );
     }
 
     /**
@@ -249,7 +263,11 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getThumbnailDirectory($path)
     {
-        return pathinfo($path, PATHINFO_DIRNAME) . '/' . \Magento\Theme\Model\Wysiwyg\Storage::THUMBNAIL_DIRECTORY;
+        return sprintf(
+            "%s/%s",
+            $this->file->getPathInfo($path)[PATHINFO_DIRNAME],
+            \Magento\Theme\Model\Wysiwyg\Storage::THUMBNAIL_DIRECTORY
+        );
     }
 
     /**
@@ -267,7 +285,11 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
         ) {
             throw new \InvalidArgumentException('The image not found.');
         }
-        return $this->getThumbnailDirectory($imagePath) . '/' . pathinfo($imageName, PATHINFO_BASENAME);
+        return sprintf(
+            "%s/%s",
+            $this->getThumbnailDirectory($imagePath),
+            $this->file->getPathInfo($imageName)[PATHINFO_BASENAME]
+        );
     }
 
     /**

@@ -9,8 +9,10 @@ use Magento\Deploy\Config\BundleConfig;
 use Magento\Deploy\Package\BundleInterface;
 use Magento\Deploy\Package\BundleInterfaceFactory;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Filesystem;
 use Magento\Framework\App\Utility\Files;
+use Magento\Framework\Filesystem\Io\File;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\View\Asset\RepositoryMap;
 
@@ -77,6 +79,11 @@ class Bundle
     ];
 
     /**
+     * @var File|null
+     */
+    private $file;
+
+    /**
      * Bundle constructor
      *
      * @param Filesystem $filesystem
@@ -84,18 +91,24 @@ class Bundle
      * @param BundleConfig $bundleConfig
      * @param Files $files
      *
+     * @param File|null $file
+     *
      * @throws \Magento\Framework\Exception\FileSystemException
      */
     public function __construct(
         Filesystem $filesystem,
         BundleInterfaceFactory $bundleFactory,
         BundleConfig $bundleConfig,
-        Files $files
+        Files $files,
+        File $file = null
     ) {
         $this->pubStaticDir = $filesystem->getDirectoryWrite(DirectoryList::STATIC_VIEW);
         $this->bundleFactory = $bundleFactory;
         $this->bundleConfig = $bundleConfig;
         $this->utilityFiles = $files;
+        $this->file = $file ?: ObjectManager::getInstance()->get(
+            \Magento\Framework\Filesystem\Io\File::class
+        );
     }
 
     /**
@@ -147,7 +160,7 @@ class Bundle
                 $filePath = substr($sourcePath, strlen($area . '/' . $theme . '/' . $locale) + 1);
             }
 
-            $contentType = pathinfo($filePath, PATHINFO_EXTENSION);
+            $contentType = $this->file->getPathInfo($filePath)[PATHINFO_EXTENSION];
             if (!in_array($contentType, self::$availableTypes)) {
                 continue;
             }
@@ -173,7 +186,7 @@ class Bundle
             return true;
         }
 
-        $info = pathinfo($filePath);
+        $info = $this->file->getPathInfo($filePath);
         if (strpos($filePath, '.min.') !== false) {
             $this->excludedCache[] = str_replace(".min.{$info['extension']}", ".{$info['extension']}", $filePath);
         } else {
