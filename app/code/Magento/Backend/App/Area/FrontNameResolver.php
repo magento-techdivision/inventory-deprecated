@@ -14,7 +14,7 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\RequestInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
-use Zend\Uri\UriInterface;
+use Zend\Uri\Uri;
 
 /**
  * Class to get area front name.
@@ -85,13 +85,13 @@ class FrontNameResolver implements \Magento\Framework\App\Area\FrontNameResolver
         \Magento\Backend\App\Config $config,
         DeploymentConfig $deploymentConfig,
         ScopeConfigInterface $scopeConfig,
-        UriInterface $uri = null,
+        Uri $uri = null,
         RequestInterface $request = null
     ) {
         $this->config = $config;
         $this->defaultFrontName = $deploymentConfig->get(ConfigOptionsList::CONFIG_PATH_BACKEND_FRONTNAME);
         $this->scopeConfig = $scopeConfig;
-        $this->uri = $uri ?: ObjectManager::getInstance()->get(UriInterface::class);
+        $this->uri = $uri ?: ObjectManager::getInstance()->get(Uri::class);
         $this->request = $request ?: ObjectManager::getInstance()->get(RequestInterface::class);
     }
 
