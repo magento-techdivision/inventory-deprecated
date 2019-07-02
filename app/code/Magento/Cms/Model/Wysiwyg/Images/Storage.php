@@ -172,7 +172,6 @@ class Storage extends \Magento\Framework\DataObject
      * @param array $dirs
      * @param array $data
      * @param \Magento\Framework\Filesystem\DriverInterface $file
-     *
      * @param \Magento\Framework\Filesystem\Io\File|null $ioFile
      *
      * @throws \Magento\Framework\Exception\FileSystemException
