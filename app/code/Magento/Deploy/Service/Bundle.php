@@ -160,8 +160,10 @@ class Bundle
                 $filePath = substr($sourcePath, strlen($area . '/' . $theme . '/' . $locale) + 1);
             }
 
-            $contentType = $this->file->getPathInfo($filePath)[PATHINFO_EXTENSION];
-            if (!in_array($contentType, self::$availableTypes)) {
+            $contentType = $this->file->getPathInfo($filePath);
+            if (!array_key_exists(PATHINFO_EXTENSION, $contentType) ||
+                !in_array($contentType[PATHINFO_EXTENSION], self::$availableTypes)
+            ) {
                 continue;
             }
 
