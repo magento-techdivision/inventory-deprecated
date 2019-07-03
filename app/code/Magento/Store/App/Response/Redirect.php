@@ -83,7 +83,7 @@ class Redirect implements \Magento\Framework\App\Response\RedirectInterface
         $this->_session = $session;
         $this->_sidResolver = $sidResolver;
         $this->_urlBuilder = $urlBuilder;
-        $this->uri = $uri ?: ObjectManager::getInstance()->get(\Zend\Uri\UriInterface::class);
+        $this->uri = $uri ?: ObjectManager::getInstance()->get(\Zend\Uri\Uri::class);
     }
 
     /**
