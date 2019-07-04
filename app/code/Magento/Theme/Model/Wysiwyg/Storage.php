@@ -159,7 +159,7 @@ class Storage
             return false;
         }
         $thumbnailDir = $this->_helper->getThumbnailDirectory($source);
-        $thumbnailPath = sprintf("%s/%s", $thumbnailDir, $this->file->getPathInfo($source)[PATHINFO_BASENAME]);
+        $thumbnailPath = sprintf("%s/%s", $thumbnailDir, $this->file->getPathInfo($source)['basename']);
         try {
             $this->mediaWriteDirectory->isExist($thumbnailDir);
             $image = $this->_imageFactory->create();
@@ -275,7 +275,7 @@ class Storage
             if (!$this->mediaWriteDirectory->isFile($path)) {
                 continue;
             }
-            $fileName = $this->file->getPathInfo($path)[PATHINFO_BASENAME];
+            $fileName = $this->file->getPathInfo($path)['basename'];
             $file = ['text' => $fileName, 'id' => $this->urlEncoder->encode($fileName)];
             if (self::TYPE_IMAGE == $storageType) {
                 $requestParams['file'] = $fileName;
@@ -304,7 +304,7 @@ class Storage
         foreach ($directories as $path) {
             $resultArray[] = [
                 'text' => $this->_helper->getShortFilename(
-                    $this->file->getPathInfo($path)[PATHINFO_BASENAME],
+                    $this->file->getPathInfo($path)['basename'],
                     20
                 ),
                 'id' => $this->_helper->convertPathToId($path),

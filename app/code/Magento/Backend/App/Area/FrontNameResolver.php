@@ -65,7 +65,7 @@ class FrontNameResolver implements \Magento\Framework\App\Area\FrontNameResolver
     private $scopeConfig;
 
     /**
-     * @var UriInterface
+     * @var Uri
      */
     private $uri;
 
@@ -78,7 +78,7 @@ class FrontNameResolver implements \Magento\Framework\App\Area\FrontNameResolver
      * @param \Magento\Backend\App\Config $config
      * @param DeploymentConfig $deploymentConfig
      * @param ScopeConfigInterface $scopeConfig
-     * @param UriInterface $uri
+     * @param Uri $uri
      * @param RequestInterface $request
      */
     public function __construct(

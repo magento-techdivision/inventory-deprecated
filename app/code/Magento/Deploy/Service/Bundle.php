@@ -161,8 +161,8 @@ class Bundle
             }
 
             $contentType = $this->file->getPathInfo($filePath);
-            if (!array_key_exists(PATHINFO_EXTENSION, $contentType) ||
-                !in_array($contentType[PATHINFO_EXTENSION], self::$availableTypes)
+            if (!array_key_exists('extension', $contentType) ||
+                !in_array($contentType['extension'], self::$availableTypes)
             ) {
                 continue;
             }

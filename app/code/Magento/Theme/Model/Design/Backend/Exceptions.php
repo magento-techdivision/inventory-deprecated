@@ -109,9 +109,11 @@ class Exceptions extends ArraySerialized
     protected function _composeRegexp($search)
     {
         // If valid regexp entered - do nothing
-        if (preg_match($search, '') !== false) {
+        /** @codingStandardsIgnoreStart */
+        if (@preg_match($search, '') !== false) {
             return $search;
         }
+        /** @codingStandardsIgnoreEnd */
 
         // Find out - whether user wanted to enter regexp or normal string.
         if ($this->_isRegexp($search)) {

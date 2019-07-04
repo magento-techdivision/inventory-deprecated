@@ -95,7 +95,7 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @var \Magento\Framework\Filesystem\Io\File|null
      */
-    private $file;
+    protected $file;
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context
@@ -265,7 +265,7 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return sprintf(
             "%s/%s",
-            $this->file->getPathInfo($path)[PATHINFO_DIRNAME],
+            $this->getFile()->getPathInfo($path)['dirname'],
             \Magento\Theme\Model\Wysiwyg\Storage::THUMBNAIL_DIRECTORY
         );
     }
@@ -288,7 +288,7 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
         return sprintf(
             "%s/%s",
             $this->getThumbnailDirectory($imagePath),
-            $this->file->getPathInfo($imageName)[PATHINFO_BASENAME]
+            $this->getFile()->getPathInfo($imageName)['basename']
         );
     }
 
@@ -343,5 +343,15 @@ class Storage extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSession()
     {
         return $this->_session;
+    }
+
+    /**
+     * Get io file.
+     *
+     * @return \Magento\Framework\Filesystem\Io\File|null
+     */
+    public function getFile()
+    {
+        return $this->file;
     }
 }

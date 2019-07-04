@@ -624,7 +624,7 @@ class Storage extends \Magento\Framework\DataObject
         $image->open($source);
         $image->keepAspectRatio($keepRatio);
         $image->resize($this->_resizeParameters['width'], $this->_resizeParameters['height']);
-        $dest = $targetDir . '/' . $this->ioFile->getPathInfo($source)[PATHINFO_BASENAME];
+        $dest = $targetDir . '/' . $this->ioFile->getPathInfo($source)['basename'];
         $image->save($dest);
         if ($this->_directory->isFile($this->_directory->getRelativePath($dest))) {
             return $dest;
@@ -709,7 +709,11 @@ class Storage extends \Magento\Framework\DataObject
         if (!$this->hasData('_image_extensions')) {
             $this->setData('_image_extensions', $this->getAllowedExtensions('image'));
         }
-        $ext = strtolower($this->ioFile->getPathInfo($filename)[PATHINFO_EXTENSION]);
+
+        $ext = "";
+        if (array_key_exists('extension', $this->ioFile->getPathInfo($filename))) {
+            $ext = strtolower($this->ioFile->getPathInfo($filename)['extension']);
+        }
         return in_array($ext, $this->_getData('_image_extensions'));
     }
 
