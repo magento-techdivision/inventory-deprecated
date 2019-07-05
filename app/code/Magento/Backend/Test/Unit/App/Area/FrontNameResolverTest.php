@@ -53,7 +53,7 @@ class FrontNameResolverTest extends \PHPUnit\Framework\TestCase
             ->will($this->returnValue($this->_defaultFrontName));
         $this->uri = $this->createMock(\Zend\Uri\Uri::class);
 
-        $this->request = $this->createMock(\Magento\Framework\App\Request\Http\Proxy::class);
+        $this->request = $this->createMock(\Magento\Framework\App\Request\Http::class);
 
         $this->configMock = $this->createMock(\Magento\Backend\App\Config::class);
         $this->scopeConfigMock = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);
