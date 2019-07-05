@@ -166,6 +166,7 @@ class Bundle
             ) {
                 continue;
             }
+            $contentType = $contentType['extension'];
 
             if ($this->hasMinVersion($filePath) || $this->isExcluded($filePath, $area, $theme)) {
                 continue;
