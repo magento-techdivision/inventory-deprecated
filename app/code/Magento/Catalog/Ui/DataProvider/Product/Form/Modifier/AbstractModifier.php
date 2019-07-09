@@ -11,8 +11,6 @@ use Magento\Ui\DataProvider\Modifier\ModifierInterface;
 /**
  * Class AbstractModifier
  *
- * @api
- *
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  * @since 101.0.0
  */
@@ -132,7 +130,7 @@ abstract class AbstractModifier implements ModifierInterface
      */
     protected function startsWith($haystack, $needle)
     {
-        return $needle === '' || strrpos($haystack, $needle, -strlen($haystack)) !== false;
+        return $needle === '' || strrpos($haystack, (string) $needle, -strlen($haystack)) !== false;
     }
 
     /**

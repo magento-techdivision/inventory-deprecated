@@ -8,6 +8,9 @@ namespace Magento\Braintree\Model;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Braintree\Gateway\Config\PayPal\Config;
 
+/**
+ * Resolve stores locale.
+ */
 class LocaleResolver implements ResolverInterface
 {
     /**
@@ -72,7 +75,7 @@ class LocaleResolver implements ResolverInterface
         $locale = $this->resolver->getLocale();
         $allowedLocales = $this->config->getValue('supported_locales');
 
-        return strpos($allowedLocales, $locale) !== false ? $locale : 'en_US';
+        return strpos($allowedLocales, (string) $locale) !== false ? $locale : 'en_US';
     }
 
     /**
